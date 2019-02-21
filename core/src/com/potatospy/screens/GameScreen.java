@@ -3,10 +3,14 @@ package com.potatospy.screens;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.audio.Sound;
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.potatospy.KanaBucket;
+import com.potatospy.entities.Bucket;
+import com.potatospy.managers.KanaManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,6 +29,8 @@ public class GameScreen implements Screen {
 
 
     protected final KanaBucket app;
+    protected final KanaManager kanaManager;
+    protected final Bucket bucket;
     OrthographicCamera camera;
 
     // Entities
@@ -33,18 +39,21 @@ public class GameScreen implements Screen {
     // Textures
     Texture bucketImage;
 
-    public static Sound dropCharacter = Gdx.audio.newSound(Gdx.files.internal("catmeow.wav"));
-    public static Sound catchCharacter = Gdx.audio.newSound(Gdx.files.internal("catmeow.wav"));
-    public static Sound missedCharacter = Gdx.audio.newSound(Gdx.files.internal("catmeow.wav"));
+    public static Sound drop1;
+    public static Sound drop2;
+    public static Sound catch1;
+    public static Sound catch2;
+    public static Sound missed;
 
 
     BitmapFont characterFont; // Font used for the Cat name Tags!
     BitmapFont scoreFont = new BitmapFont(Gdx.files.internal("arial.fnt"), false);
 
 
-    public GameScreen(final KanaBucket app){
-        this.app=app;
-
+    public GameScreen(final KanaBucket app) {
+        this.app = app;
+        kanaManager = new KanaManager();
+        bucket = new Bucket(0f, 0f);
 
         // Initialize camera
         this.camera = new OrthographicCamera();
@@ -56,10 +65,142 @@ public class GameScreen implements Screen {
         scoreFont = new BitmapFont(Gdx.files.internal("arial.fnt"), false);
 
         // Initialize sounds
+        drop1 = Gdx.audio.newSound(Gdx.files.internal("drop1.wav"));
+        drop2 = Gdx.audio.newSound(Gdx.files.internal("drop2.wav"));
+        catch1 = Gdx.audio.newSound(Gdx.files.internal("catch1.wav"));
+        catch2 = Gdx.audio.newSound(Gdx.files.internal("catch2.wav"));
+        missed = Gdx.audio.newSound(Gdx.files.internal("missed.wav"));
+
 
         // Init images
         bucketImage = new Texture("bucket.png");
     }
 
+    // On screen load...
+    @Override
+    public void show() {
 
+        // Set volume for audio
+
+
+        // Font and Text init
+        characterFont.setColor(Color.WHITE);
+        characterFont.getData().setScale(0.6f);
+        scoreFont.setColor(Color.WHITE);
+        scoreFont.getData().setScale(0.5f);
+    }
+
+    public void update(float delta) {
+
+        // Tell each Kana to update
+        //kanaManager.update();
+
+        bucket.setBucketX((Gdx.input.getX()));
+        System.out.println("X:"+ Gdx.input.getX() + " Y:"+ Gdx.input.getY());
+
+
+
+    }
+
+    @Override
+    public void render(float delta) {
+
+        update(delta); // Call update() every frame to update logic before rendering
+
+        Gdx.gl.glClearColor(1f, 1, 1f, 0);  // Black background
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);   // I forget Todo: unforget
+
+        app.batch.begin();  // Start rendering
+
+        // Render the bucket
+        app.batch.draw(bucketImage, bucket.getBucketX(), bucket.getBucketY());
+
+        // Render the Kana
+
+
+
+        app.batch.end();
+    }
+
+    @Override
+    public void resize(int width, int height) {
+
+    }
+
+    @Override
+    public void pause() {
+
+    }
+
+    @Override
+    public void resume() {
+
+    }
+
+    @Override
+    public void hide() {
+
+    }
+
+    @Override
+    public void dispose() {
+
+        scoreFont.dispose();
+        characterFont.dispose();
+
+        bucketImage.dispose();
+
+        drop1.dispose();
+        drop2.dispose();
+        missed.dispose();
+        catch1.dispose();
+        catch2.dispose();
+    }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

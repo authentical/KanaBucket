@@ -1,6 +1,7 @@
-package com.potatospy;
+package com.potatospy.managers;
 
 import com.badlogic.gdx.Screen;
+import com.potatospy.KanaBucket;
 import com.potatospy.screens.GameScreen;
 
 import java.util.HashMap;
