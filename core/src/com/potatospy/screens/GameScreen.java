@@ -38,7 +38,6 @@ public class GameScreen implements Screen {
     public static Sound missed;
 
     // Fonts
-    BitmapFont characterFont; // Font used for the Cat name Tags!
     BitmapFont scoreFont = new BitmapFont(Gdx.files.internal("arial.fnt"), false);
 
     // Game logic fields
@@ -61,7 +60,6 @@ public class GameScreen implements Screen {
         this.camera.setToOrtho(false, KanaBucket.APP_WIDTH, KanaBucket.APP_HEIGHT);
 
         // Initialize fonts
-        characterFont = new BitmapFont(Gdx.files.internal("arial.fnt"), false);
         scoreFont = new BitmapFont(Gdx.files.internal("arial.fnt"), false);
 
         // Initialize sounds
@@ -79,16 +77,15 @@ public class GameScreen implements Screen {
     @Override
     public void show() {
 
-        // Get size of bucket, Differs depending on difficulty
+        // Initialize bucket and characterManager
         bucket.setDifficulty(difficulty);
         characterManager.setDifficulty(difficulty);
+        characterManager.generateKana();
 
         // Set volumes for audio
 
 
         // Font and Text init
-        characterFont.setColor(Color.WHITE);
-        characterFont.getData().setScale(0.6f);
         scoreFont.setColor(Color.CYAN);
         scoreFont.getData().setScale(0.5f);
 
@@ -104,13 +101,14 @@ public class GameScreen implements Screen {
         // Every delta=500, Add a new ball to the balls List
         timePassed += delta;
 
-        // Tell each DroppableCharacter to update
+        // Tell each SpriteCharacter to update via characterManager
         characterManager.update(timePassed);
 
-        bucket.setBucketX((Gdx.input.getX()));
-        System.out.println("X:"+ Gdx.input.getX() + " Y:"+ Gdx.input.getY());
+        // Attach bucket to mouse X
+        bucket.setBucketX((Gdx.input.getX()));  // Todo Need limit
+        //System.out.println("X:"+ Gdx.input.getX() + " Y:"+ Gdx.input.getY());
 
-
+        // Quit with Escape button
         if(Gdx.input.isKeyPressed(Input.Keys.ESCAPE)){
             Gdx.app.exit();
         }
@@ -132,22 +130,29 @@ public class GameScreen implements Screen {
         //
 
         // For PLAYER: number of balls on screen Todo Use game texts, dont harcode
-        scoreFont.draw(app.batch,("Current DroppableCharacter: " + String.valueOf("0")), 0, 550);
+        scoreFont.draw(app.batch,("Current Letter: " + String.valueOf("0")), 0, 550);
         // For PLAYER: score (number of balls "caught"/intersected)
         scoreFont.draw(app.batch, ("Score: " + "0"), 0, 600);
         // For PLAYER: balls not caught. If a player misses 10 balls, it's game over!
-        scoreFont.draw(app.batch, ("DroppableCharacter not caught: " + String.valueOf("0")), 0,650);
+        scoreFont.draw(app.batch, ("Letter not caught: " + String.valueOf("0")), 0,650);
 
 
         ///////////////////////////////
         // Render the bucket
         //
-        app.batch.draw(bucket.getBucketSprite(), bucket.getBucketX(), bucket.getBucketY(), bucket.getBucketSprite().getScaleX(),bucket.getBucketSprite().getScaleY());
+        app.batch.draw(bucket.getBucketSprite(),
+                bucket.getBucketX(), bucket.getBucketY(),
+                bucket.getBucketSprite().getScaleX(),bucket.getBucketSprite().getScaleY());
+
 
         ///////////////////////////////
-        // Render the DroppableCharacter
+        // Render the SpriteCharacter
         //
 
+//        characterManager.getLetters().forEach((letter) -> {
+//            app.batch.draw(letter.getCharacterSprite(),
+//                    letter.getCharacterX(), letter.getCharacterY());
+//        });
 
 
         app.batch.end();
@@ -177,7 +182,6 @@ public class GameScreen implements Screen {
     public void dispose() {
 
         scoreFont.dispose();
-        characterFont.dispose();
 
 
         drop1.dispose();
