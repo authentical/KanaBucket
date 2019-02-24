@@ -3,6 +3,7 @@ package com.potatospy;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.potatospy.managers.GameScreenManager;
+import com.potatospy.util.CharacterLoader;
 
 
 public class KanaBucket extends Game {
@@ -17,6 +18,8 @@ public class KanaBucket extends Game {
     public final static int APP_WIDTH = 1100;
     public final static int APP_HEIGHT = 700;
 
+    // Load unicode characters for game
+    private static CharacterLoader characterLoader = CharacterLoader.getInstance();
 
     // Managers
     public GameScreenManager gameScreenManager;

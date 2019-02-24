@@ -1,12 +1,9 @@
 package com.potatospy.entities;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.potatospy.KanaBucket;
+import com.potatospy.util.CharacterLoader;
 
-import javax.xml.bind.DatatypeConverter;
-import java.io.UnsupportedEncodingException;
 import java.util.Random;
 
 public class Letter {
@@ -15,17 +12,17 @@ public class Letter {
     private int difficulty;     /* Used in determining the range of characters to choose from when
                                    this class generates it's character */
     private String character;   // UTF-16 character
+    private static CharacterLoader characterLoader = CharacterLoader.getInstance();
     private boolean isKana;     // Points will be awarded for catching Kana and deducted for not Kana.
     private boolean isInPlay;     // Determines whether or not the letter is currently being used
     private boolean caught;     // If a letter is caught, then true
     private boolean missed;     // If a letter is missed, then true
 
-    private Sprite characterSprite;
-    private BitmapFont characterFont;
+    private Sprite characterSprite; // For handling collisions
     private float speed;        // How fast the character falls
     private final float characterX;   // X position never changes
     private float characterY;   // Character will fall and Y distance is subtracted as time passes
-    Random rand;
+    private Random rand;
 
     // == Constructors ==
 
@@ -42,11 +39,6 @@ public class Letter {
 
         characterSprite.setOrigin(50f/2,50f/2);
         characterSprite.setSize(50f, 50f);
-
-        characterFont = new BitmapFont( // Todo select different font
-                Gdx.files.internal("UDDigi.fnt"),
-                false);
-        characterFont.setColor(1.0f, 1.0f, 1.0f, 1.0f); // Todo randomize
     }
 
 
@@ -71,9 +63,6 @@ public class Letter {
     public float getCharacterY() { return characterY; }
     public void setCharacterY(float characterY) { this.characterY = characterY; }
 
-    public BitmapFont getCharacterFont() { return characterFont; }
-    public void setCharacterFont(BitmapFont characterFont) { this.characterFont = characterFont; }
-
     public boolean isInPlay() { return isInPlay; }
     public void setInPlay(boolean inPlay) { isInPlay = inPlay; }
 
@@ -95,7 +84,11 @@ public class Letter {
     private String newCharacter(int difficulty){
 
         // Get character
-        return "a";
+        Random chooseCharacterIndex = new Random();
+        int letterListSize = characterLoader.getLetterList().size();
+        //System.out.println(rand.nextInt(190));
+        //System.out.println(characterLoader.getLetterList().get(180));
+        return characterLoader.getLetterList().get(chooseCharacterIndex.nextInt(letterListSize -1));
     }
 
 

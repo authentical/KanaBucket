@@ -12,6 +12,8 @@ import com.potatospy.KanaBucket;
 import com.potatospy.entities.Bucket;
 import com.potatospy.managers.CharacterManager;
 
+import java.io.UnsupportedEncodingException;
+
 /*
 Characters are generated at the top of the screen and fall down
 A Bucket attached to the user's mouse can collide with the characters and
@@ -41,13 +43,11 @@ public class GameScreen implements Screen {
     BitmapFont scoreFont = new BitmapFont(Gdx.files.internal("arial.fnt"), false);
 
     // Game logic fields
-    private int timePassed;   // Every game starts at 0ms Todo ms?
     private int difficulty;   // Default difficulty is 1
 
     public GameScreen(final KanaBucket app) {
 
         // Init game logic
-        timePassed = 0;
         difficulty = 1;
 
         this.app = app;
@@ -98,11 +98,10 @@ public class GameScreen implements Screen {
 
     public void update(float delta) {
 
-        // Every delta=500, Add a new ball to the balls List
-        timePassed += delta;
 
+        //System.out.println(delta);
         // Tell each SpriteCharacter to update via characterManager
-        characterManager.update(timePassed);
+        characterManager.update(delta);
 
         // Attach bucket to mouse X
         bucket.setBucketX((Gdx.input.getX()));  // Todo Need limit
@@ -146,13 +145,14 @@ public class GameScreen implements Screen {
 
 
         ///////////////////////////////
-        // Render the SpriteCharacter
+        // Render the Letters
         //
 
-//        characterManager.getLetters().forEach((letter) -> {
-//            app.batch.draw(letter.getCharacterSprite(),
-//                    letter.getCharacterX(), letter.getCharacterY());
-//        });
+        characterManager.getLetters().forEach((letter) -> {
+            characterManager.getCharacterFont().draw(app.batch,letter.getCharacter(),
+                    letter.getCharacterX(), letter.getCharacterY());
+            //System.out.println(letter.getCharacterY());
+        });
 
 
         app.batch.end();

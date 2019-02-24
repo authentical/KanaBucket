@@ -1,5 +1,9 @@
 package com.potatospy.managers;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.potatospy.entities.Letter;
 
 import java.util.ArrayList;
@@ -9,12 +13,7 @@ import java.util.List;
 For each game, some number of Letters are added to the letters list
 (dependent on difficulty).
 As timePassed increases, Letters are put into play.
-The Letters are now available to GameScreen to render and update.
-The characters each have:
-A speed
-An X position (which currently will remain static)
-An isKana that will determine whether points are added and subtracted for catching it
-in the bucket.
+The Letters become available to GameScreen to render and update.
 
 If a Letter reaches the bottom or is caught then it is marked as caught or missed.
 GameScreen takes care of the score.
@@ -30,18 +29,30 @@ public class CharacterManager {
 
     // == Fields ==
     List<Letter> letters;  // List of letters
-    private int difficulty; // Passed to Letter to determine speed and range of
-                            // characters used.
-    private float timePassedSinceLastUpdate;  // For determining if a new spriteCharacter should be generated
-    private float lastTimePassed;             // For determining if a new spriteCharacter should be generated
+    private int difficulty; /* Passed to Letter to determine speed and range of
+                               characters used. */
+    private float timePassed;  // For determining if a new spriteCharacter should be generated
+    private float generateNewLetterTimeThreshold; // For determining if a new letter should be added to the screen
+    private float timeTemp;                       // For determining if a new letter should be added to the screen
+
+    private BitmapFont characterFont;
+
+
 
     // == Constructor ==
     public CharacterManager(int difficulty) {
 
         this.letters = new ArrayList<>();
         this.difficulty = difficulty;
-        this.timePassedSinceLastUpdate = 0;
-        this.lastTimePassed=0;
+        this.timePassed = 0f;
+        this.generateNewLetterTimeThreshold = 60f/difficulty;
+        this.timeTemp = 0f;
+
+        // Font
+        characterFont = FontManager.prepareFont();
+        characterFont.setColor(Color.WHITE);
+        characterFont.getData().setScale(0.5f);
+
     }
 
 
@@ -51,6 +62,9 @@ public class CharacterManager {
 
     public int getDifficulty() { return difficulty; }
     public void setDifficulty(int difficulty) { this.difficulty = difficulty; }
+
+    public BitmapFont getCharacterFont() { return characterFont; }
+    public void setCharacterFont(BitmapFont characterFont) { this.characterFont = characterFont; }
 
 
     // == Manager methods ==
@@ -66,34 +80,29 @@ public class CharacterManager {
     }
 
     // On every Game update(), Character positions and existence are updated.
-    public void update(float timePassed){
+    public void update(float timePassedSinceLastUpdateUpdate){
 
         // How much time has passed since the last time update was called
-        timePassedSinceLastUpdate = timePassed-lastTimePassed;
-        lastTimePassed = timePassed;
-
+        timeTemp += timePassedSinceLastUpdateUpdate;
+        //System.out.println("TIME: " + timeTemp + "\n");
         // Each letter that is in play, update its position
         // If 5 seconds has passed,
         // then set one !inPlay character to inPlay
         //
+        //letters.forEach((letter)->{System.out.println(letter.getCharacter());});
         letters.forEach((letter)->{
 
             if(letter.isInPlay()) {
                 letter.setCharacterY(
-                        letter.getCharacterY() + 10 * letter.getSpeed());
+                        letter.getCharacterY() + letter.getSpeed());
             }
-            else if (timePassedSinceLastUpdate > 500 && !letter.isInPlay()) {
+            else if (generateNewLetterTimeThreshold > timeTemp && !letter.isInPlay()) {
 
                 letter.setInPlay(true);
+                timeTemp=0f;
+
                 return;
             }
         });
     }
-
-//    public List<Letter> getInPlayLetters(){
-//
-//
-//
-//
-//    }
 }
