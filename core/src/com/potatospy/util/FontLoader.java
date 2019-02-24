@@ -1,4 +1,4 @@
-package com.potatospy.managers;
+package com.potatospy.util;
 
 
 import com.badlogic.gdx.Gdx;
@@ -9,7 +9,7 @@ import com.potatospy.util.CharacterLoader;
 
 // A fair amount goes into preparing the unicode japanese font for LibGDX so
 // this class helps keep it clean
-public class FontManager {
+public class FontLoader {
 
     private static CharacterLoader characterLoader = CharacterLoader.getInstance();
     public static BitmapFont characterFont;     // This font is returned for use by CharacterManager
@@ -22,7 +22,7 @@ public class FontManager {
         FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
         parameter.size = 128;    // Import font at this font size
 
-        // Load letters to be used in game  Todo what if this fails
+        // Load gameLetters to be used in game  Todo what if this fails
 
         parameter.characters = characterLoader.getLetterString();
 

@@ -11,8 +11,9 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.potatospy.KanaBucket;
 import com.potatospy.entities.Bucket;
 import com.potatospy.managers.CharacterManager;
+import com.potatospy.managers.CollisionManager;
 
-import java.io.UnsupportedEncodingException;
+import java.util.Random;
 
 /*
 Characters are generated at the top of the screen and fall down
@@ -44,6 +45,9 @@ public class GameScreen implements Screen {
 
     // Game logic fields
     private int difficulty;   // Default difficulty is 1
+    private int score;
+    private int charactersMissed;
+    private Random rand = new Random();
 
     public GameScreen(final KanaBucket app) {
 
@@ -51,8 +55,9 @@ public class GameScreen implements Screen {
         difficulty = 1;
 
         this.app = app;
-        characterManager = new CharacterManager(difficulty);
         bucket = new Bucket(0f, 0f, 1);
+        characterManager = new CharacterManager(difficulty);
+
 
 
         // Initialize camera
@@ -80,7 +85,7 @@ public class GameScreen implements Screen {
         // Initialize bucket and characterManager
         bucket.setDifficulty(difficulty);
         characterManager.setDifficulty(difficulty);
-        characterManager.generateKana();
+        characterManager.generateListOfCharacters();
 
         // Set volumes for audio
 
@@ -102,6 +107,7 @@ public class GameScreen implements Screen {
         //System.out.println(delta);
         // Tell each SpriteCharacter to update via characterManager
         characterManager.update(delta);
+
 
         // Attach bucket to mouse X
         bucket.setBucketX((Gdx.input.getX()));  // Todo Need limit
@@ -125,15 +131,13 @@ public class GameScreen implements Screen {
 
 
         ///////////////////////////////
-        // Render Text
+        // Render Text Info
         //
 
-        // For PLAYER: number of balls on screen Todo Use game texts, dont harcode
-        scoreFont.draw(app.batch,("Current Letter: " + String.valueOf("0")), 0, 550);
-        // For PLAYER: score (number of balls "caught"/intersected)
-        scoreFont.draw(app.batch, ("Score: " + "0"), 0, 600);
-        // For PLAYER: balls not caught. If a player misses 10 balls, it's game over!
-        scoreFont.draw(app.batch, ("Letter not caught: " + String.valueOf("0")), 0,650);
+        // For PLAYER: score (number of characters "caught"/intersected)
+        scoreFont.draw(app.batch, ("Score: " + score), 0, 600);
+        // For PLAYER: characters not caught. If a player misses 10 characters, it's game over!
+        scoreFont.draw(app.batch, ("Characters missed: " + charactersMissed), 0,650);
 
 
         ///////////////////////////////
@@ -145,13 +149,42 @@ public class GameScreen implements Screen {
 
 
         ///////////////////////////////
-        // Render the Letters
+        // Render the GameCharacters
         //
 
-        characterManager.getLetters().forEach((letter) -> {
-            characterManager.getCharacterFont().draw(app.batch,letter.getCharacter(),
-                    letter.getCharacterX(), letter.getCharacterY());
-            //System.out.println(letter.getCharacterY());
+        characterManager.getGameCharacters().forEach((gameCharacter) -> {
+            // Only draw the character if its in play
+            if(gameCharacter.isInPlay()) {
+                characterManager.getCharacterFont().draw(app.batch, gameCharacter.getCharacter(),
+                        gameCharacter.getCharacterX(), gameCharacter.getCharacterY());
+
+                if(gameCharacter.getCharacterY()==750){
+                    if(rand.nextInt(2)==1){
+                        drop2.play();
+                    } else{
+                        drop1.play();
+                    }
+                }
+
+                if(gameCharacter.getCharacterY()<180&&CollisionManager.isCollision(bucket, gameCharacter, difficulty)){
+
+                    gameCharacter.setInPlay(false);
+                    gameCharacter.setCaught(true);
+                    score++;
+                    if(rand.nextInt(2)==1){
+                        catch1.play();
+                    } else{
+                        catch2.play();
+                    }
+
+                } else if(gameCharacter.getCharacterY()<0){
+                    gameCharacter.setInPlay(false);
+                    gameCharacter.setMissed(true);
+                    charactersMissed++;
+                    missed.play();
+                }
+
+            }
         });
 
 

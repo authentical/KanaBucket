@@ -6,7 +6,7 @@ import com.potatospy.util.CharacterLoader;
 
 import java.util.Random;
 
-public class Letter {
+public class GameCharacter {
 
     // == Fields ==
     private int difficulty;     /* Used in determining the range of characters to choose from when
@@ -26,16 +26,23 @@ public class Letter {
 
     // == Constructors ==
 
-    public Letter(int difficulty) {
+    public GameCharacter(int difficulty) {
 
         this.difficulty = difficulty;
         this.character = newCharacter(difficulty);
 
-        this.characterSprite = new Sprite();
+        this.isKana = false;    // Assigned by newCharacter()
+        this.isInPlay = false;  // Assigned via CharacterManager
+        this.caught = false;
+        this.missed = false;
+
+
         this.rand = new Random();
 
+        this.characterSprite = new Sprite();
+        this.speed = difficulty*2;
         this.characterX = newX();   // Randomly select X position
-        this.characterY = KanaBucket.APP_HEIGHT;     // Character is dropped from the top of the screen
+        this.characterY = KanaBucket.APP_HEIGHT+100;     // Character is dropped from the top of the screen
 
         characterSprite.setOrigin(50f/2,50f/2);
         characterSprite.setSize(50f, 50f);
@@ -81,7 +88,7 @@ public class Letter {
     }
 
 
-    private String newCharacter(int difficulty){
+    private String newCharacter(int difficulty){        // Todo assign isKana
 
         // Get character
         Random chooseCharacterIndex = new Random();

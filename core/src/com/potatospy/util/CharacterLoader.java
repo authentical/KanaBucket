@@ -4,20 +4,20 @@ import java.io.*;
 import java.util.List;
 
 
-// This file gets the Kana out of the prepared kanaList.data
+// This file gets the characters out of the prepared characterList.data
 public class CharacterLoader {
 
     private static CharacterLoader characterLoaderInstance = null;
 
     private List<String> letterList = null; // For loading from file. File is stored as a serialized List<String>
     private StringBuilder letterStringBuilder = new StringBuilder();// For generating a concatenated string of
-                                                                    // characters for FontManager
+                                                                    // characters for FontLoader
     private String letterString;
 
     // == Init ==
     public CharacterLoader(){
 
-        this.letterList = getKanaFromFile();
+        this.letterList = getCharactersFromFile();
         this.letterString = convertLetterListToStringBuilder();
     }
     public static CharacterLoader getInstance()
@@ -29,13 +29,13 @@ public class CharacterLoader {
     }
 
 
-    // Get Kana from file and return concatenated string of kana
-    private List<String> getKanaFromFile(){
+    // Get Characters from file and return concatenated string of characters
+    private List<String> getCharactersFromFile(){
 
         FileInputStream in;             // Todo I forget if these streams close themselves...!!o
         ObjectInputStream objectIn;
         try {
-            in = new FileInputStream("kanaList.dat");
+            in = new FileInputStream("characterList.dat");
             objectIn = new ObjectInputStream(in);
             letterList = (List<String>) (objectIn.readObject());
         }catch (FileNotFoundException e) { System.out.println("File not found: " + e);
@@ -57,7 +57,7 @@ public class CharacterLoader {
 
     // == Getters ==
 
-    // return concatenated string of kana
+    // return concatenated string of letters
     public String getLetterString(){
         return letterStringBuilder.toString();  // Todo throw error if this is empty
     }
