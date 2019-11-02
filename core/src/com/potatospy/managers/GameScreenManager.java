@@ -1,14 +1,17 @@
 package com.potatospy.managers;
 
+import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Screen;
 import com.potatospy.KanaBucket;
 import com.potatospy.screens.GameScreen;
+import com.potatospy.screens.Highscores;
+import com.potatospy.util.CharacterLoader;
 
 import java.util.HashMap;
 
 public class GameScreenManager {
 
-
+    private static GameScreenManager gameScreenManager = null;
 
     public final KanaBucket app;    // For use with Screens. This is passed around so all screens can access the shared SpriteBatch
     private HashMap<STATE, Screen> gameScreenMap;
@@ -23,7 +26,6 @@ public class GameScreenManager {
 
         initGameScreens();
         setScreen(STATE.PLAY);
-
     }
 
 
@@ -33,9 +35,9 @@ public class GameScreenManager {
 
         this.gameScreenMap = new HashMap<STATE, Screen>();
         //this.gameScreenMap.put(STATE.MAIN_MENU, new MainMenu(app));
-        this.gameScreenMap.put(STATE.PLAY, new GameScreen(app));
+        this.gameScreenMap.put(STATE.PLAY, new GameScreen(app, this));
         //this.gameScreenMap.put(STATE.SETTINGS, new Settings(app));
-        //this.gameScreenMap.put(STATE.HIGHSCORE, new Highscore(app));
+        this.gameScreenMap.put(STATE.HIGHSCORE, new Highscores(app, this));
     }
 
 
