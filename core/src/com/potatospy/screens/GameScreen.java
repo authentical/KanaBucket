@@ -8,10 +8,16 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.Window;
 import com.potatospy.KanaBucket;
 import com.potatospy.entities.Bucket;
 import com.potatospy.managers.CharacterManager;
 import com.potatospy.managers.CollisionManager;
+import com.potatospy.managers.GameScreenManager;
+import com.potatospy.managers.ScoreManager;
+import com.potatospy.util.MyTextInputListener;
 
 import java.util.Random;
 
@@ -29,6 +35,7 @@ public class GameScreen implements Screen {
 
 
     protected final KanaBucket app;
+    protected final GameScreenManager gameScreenManager;
     protected final CharacterManager characterManager;
     protected final Bucket bucket;
     OrthographicCamera camera;
@@ -47,14 +54,24 @@ public class GameScreen implements Screen {
     private int difficulty;   // Default difficulty is 1
     private int score;
     private int charactersMissed;
+    private int cursorX;
+    private MyTextInputListener listener;
+    private ScoreManager scoreManager;
     private Random rand = new Random();
 
-    public GameScreen(final KanaBucket app) {
+
+    // == Constructor ==
+    public GameScreen(final KanaBucket app, final GameScreenManager gameScreenManager) {
 
         // Init game logic
-        difficulty = 1;
+        difficulty = 2;
+        score =0;
+        cursorX=app.APP_WIDTH/2;
+        scoreManager = ScoreManager.getInstance();
+        listener = new MyTextInputListener();
 
         this.app = app;
+        this.gameScreenManager = gameScreenManager;
         bucket = new Bucket(0f, 0f, 1);
         characterManager = new CharacterManager(difficulty);
 
@@ -73,9 +90,6 @@ public class GameScreen implements Screen {
         catch1 = Gdx.audio.newSound(Gdx.files.internal("catch1.wav"));
         catch2 = Gdx.audio.newSound(Gdx.files.internal("catch2.wav"));
         missed = Gdx.audio.newSound(Gdx.files.internal("missed.wav"));
-
-
-
     }
 
     // On screen load...
@@ -97,7 +111,7 @@ public class GameScreen implements Screen {
         // Hide the mouse cursor
         Gdx.input.setCursorCatched(true);
 
-        BitmapFont info = new BitmapFont(Gdx.files.internal("arial.fnt"), false);
+        //BitmapFont info = new BitmapFont(Gdx.files.internal("arial.fnt"), false);
 
     }
 
@@ -110,8 +124,20 @@ public class GameScreen implements Screen {
 
 
         // Attach bucket to mouse X
-        bucket.setBucketX((Gdx.input.getX()));  // Todo Need limit
-        //System.out.println("X:"+ Gdx.input.getX() + " Y:"+ Gdx.input.getY());
+        cursorX = Gdx.input.getX();
+        if(cursorX < 0){cursorX=0;}
+        if(cursorX > app.APP_WIDTH-75){ cursorX=app.APP_WIDTH-115;}
+        bucket.setBucketX(cursorX);
+
+
+        // Is character list empty and all characters no longer in play? If so, go to high scores.
+        if(characterManager.isCharacterListEmpty()==true){
+
+            listener.score = score;
+            Gdx.input.getTextInput(listener, "Enter your name", "", "");
+
+            gameScreenManager.setScreen(GameScreenManager.STATE.HIGHSCORE);
+        }
 
         // Quit with Escape button
         if(Gdx.input.isKeyPressed(Input.Keys.ESCAPE)){
@@ -151,7 +177,8 @@ public class GameScreen implements Screen {
         ///////////////////////////////
         // Render the GameCharacters
         //
-
+        // Some of this logic belongs in update() but I couldn't justify looping twice,
+        // Once to render, another time to update catch and miss.
         characterManager.getGameCharacters().forEach((gameCharacter) -> {
             // Only draw the character if its in play
             if(gameCharacter.isInPlay()) {
@@ -165,8 +192,8 @@ public class GameScreen implements Screen {
                         drop1.play();
                     }
                 }
-
-                if(gameCharacter.getCharacterY()<180&&CollisionManager.isCollision(bucket, gameCharacter, difficulty)){
+                                    // Todo If the characters are dropping fast enough, they aren't being caught
+                if((gameCharacter.getCharacterY()<158&&gameCharacter.getCharacterY()>110)&&CollisionManager.isCollision(bucket, gameCharacter, difficulty)){
 
                     gameCharacter.setInPlay(false);
                     gameCharacter.setCaught(true);
