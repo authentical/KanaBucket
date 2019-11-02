@@ -34,6 +34,8 @@ public class CharacterManager {
     private float generateNewCharacterTimeThreshold; // For determining if a new character should be added to the screen
     private float timeTemp;                       // For determining if a new character should be added to the screen
     private int nextIndexToPutInPlay;   // For determining which character to drop next
+    private boolean characterListEmpty;
+    private boolean charactersInPlay;
 
     private BitmapFont characterFont;
 
@@ -47,6 +49,8 @@ public class CharacterManager {
         this.generateNewCharacterTimeThreshold = 3f/difficulty;
         this.timeTemp = 3f;     // Setting this to 3 allows the initial character to drop immediately when game starts
         this.nextIndexToPutInPlay = 0;  // TOdo there must be 10 indices in gameCharacters or this'll blow up
+        this.characterListEmpty = false;
+        this.charactersInPlay =false;
 
         // Font
         characterFont = FontLoader.prepareFont();
@@ -66,8 +70,10 @@ public class CharacterManager {
     public BitmapFont getCharacterFont() { return characterFont; }
     public void setCharacterFont(BitmapFont characterFont) { this.characterFont = characterFont; }
 
+    public boolean isCharacterListEmpty() { return characterListEmpty; }
 
-    // == Manager methods ==
+
+// == Manager methods ==
 
     // Create a list filled with gameCharacters appropriate
     // for the difficulty (Higher difficulty, wider range of characters)
@@ -85,23 +91,32 @@ public class CharacterManager {
         // How much time has passed since the last time update was called
         timeTemp += timePassedSinceLastUpdateUpdate;
 
+        charactersInPlay = false;
         // Each character that is in play, update its position
         gameCharacters.forEach((gameCharacter)->{
             if (gameCharacter.isInPlay()) {
 
                 gameCharacter.setCharacterY(
                         gameCharacter.getCharacterY() - gameCharacter.getSpeed());
+                charactersInPlay = true;
             }
         });
 
+        // If character list is not empty,
         // If 5 seconds has passed,
-        // then set one !inPlay character to inPlay
-        if(timeTemp> generateNewCharacterTimeThreshold){
-            gameCharacters.get(nextIndexToPutInPlay).setInPlay(true);
-            nextIndexToPutInPlay++;
-            timeTemp=0;
+        // then set one !inPlay character to inPlay.
+        // If no characters are left to set inPlay, characterListEmpty=true
+        if(!characterListEmpty) {
+            if (timeTemp > generateNewCharacterTimeThreshold) {
+                System.out.println(nextIndexToPutInPlay);
+                gameCharacters.get(nextIndexToPutInPlay).setInPlay(true);
+                if (nextIndexToPutInPlay >= gameCharacters.size() - 1) {
+                    characterListEmpty = true;
+                } else {
+                    nextIndexToPutInPlay++;
+                }
+                timeTemp = 0;
+            }
         }
-
-
     }
 }
