@@ -61,6 +61,7 @@ public class Highscores implements Screen {
         app.batch.begin();  // Start rendering
 
 
+
         ///////////////////////////////
         // Render Text Info
         //
